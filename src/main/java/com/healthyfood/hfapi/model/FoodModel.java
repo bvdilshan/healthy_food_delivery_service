@@ -6,11 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "foods")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collation = "foods")
 public class FoodModel {
     @Id
     private String id;
