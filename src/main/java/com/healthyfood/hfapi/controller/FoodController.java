@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/foods")
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class FoodController {
 
     private final ObjectMapper objectMapper;

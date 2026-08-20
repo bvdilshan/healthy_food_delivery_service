@@ -26,6 +26,9 @@ public class FoodServiceIMPL implements FoodService {
     private final S3Client s3Client;
     private final FoodRepo foodRepo;
 
+    @Value("${aws.s3.region:us-east-1}")
+    private String region;
+
     @Value("${aws.s3.bucketname}")
     private String bucketName;
 
@@ -48,7 +51,8 @@ public class FoodServiceIMPL implements FoodService {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-            return key;
+            String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+            return fileUrl;
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file to S3", e);
         }
