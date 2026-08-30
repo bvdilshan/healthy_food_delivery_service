@@ -3,7 +3,13 @@ package com.healthyfood.hfapi.controller;
 import com.healthyfood.hfapi.dto.FoodRequest;
 import com.healthyfood.hfapi.dto.FoodResponse;
 import com.healthyfood.hfapi.service.FoodService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +30,9 @@ public class FoodController {
     private final FoodService foodService;
 
     @PostMapping
-    public ResponseEntity<FoodResponse> addFood(@RequestPart("food") String foodString,
-                                                @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<FoodResponse> addFood(
+            @Valid @RequestPart("food") String foodString,
+            @RequestPart("file") MultipartFile file) {
         FoodRequest request;
         try {
             request = objectMapper.readValue(foodString, FoodRequest.class);
@@ -52,5 +59,33 @@ public class FoodController {
     public void deleteFood(@PathVariable String id){
         foodService.deleteFood(id);
 
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<FoodResponse> updateFood(
+            @PathVariable String id,
+            @Valid @RequestPart("food") String foodString,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        FoodRequest request;
+        try {
+            request = objectMapper.readValue(foodString, FoodRequest.class);
+        } catch (DatabindException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid JSON format for food update", e);
+        }
+
+        FoodResponse response = foodService.updateFood(id, request, file);
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<FoodResponse>> getFoodsPaginated(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy).ascending());
+        Page<FoodResponse> response = foodService.getFoodsPaginated(search, maxPrice, pageable);
+        return ResponseEntity.ok(response);
     }
 }

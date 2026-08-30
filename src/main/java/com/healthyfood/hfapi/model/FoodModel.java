@@ -29,6 +29,5 @@ public class FoodModel {
     private List<String> allergens;
     private boolean isAvailable;
     private int preparationTimeMinutes;
-    private double rating;
     private String portionSize;
 }
